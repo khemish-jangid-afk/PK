@@ -1,0 +1,1670 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Special Journey | Happy Birthday 28th Oct</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Canvas Confetti CDN for Finale -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Firebase Realtime Database event tracking -->
+    <script type="module" src="./firebase-config.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Playfair+Display:ital,wght@0,600;0,800;1,500&family=Poppins:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+
+    <style>
+        /* Custom Fonts */
+        .font-serif-title {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .font-body {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .font-handwriting {
+            font-family: 'Caveat', cursive;
+        }
+
+        /* Smooth Glassmorphism */
+        .glass-card {
+            position: relative;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 182, 193, 0.3);
+            box-shadow: 0 20px 40px rgba(225, 112, 140, 0.12);
+        }
+
+        .dark-glass {
+            background: rgba(20, 15, 25, 0.65);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 182, 193, 0.2);
+        }
+
+        /* A small SVG boy offers a heart, which grows into a birthday message. */
+        .avatar-stage {
+            position: relative;
+            width: min(23rem, 96vw);
+            height: min(21rem, 92vw);
+            flex: none;
+            isolation: isolate;
+            overflow: visible;
+            border-radius: 1.5rem;
+            background: radial-gradient(circle at 50% 75%, rgba(251, 113, 133, 0.18), transparent 48%);
+        }
+
+        .avatar-boy {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+
+        .avatar-character {
+            transform-origin: 110px 185px;
+            transform-box: fill-box;
+        }
+
+        .avatar-heart {
+            position: absolute;
+            z-index: 2;
+            width: calc(min(16rem, 76vw) + 30px);
+            height: calc(min(16rem, 76vw) + 30px);
+            left: 50%;
+            top: 57%;
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.18);
+            transform-origin: center;
+            filter: drop-shadow(0 0 16px rgba(251, 113, 133, 0.72));
+        }
+
+        .avatar-heart-shape {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+
+        .avatar-heart::before,
+        .avatar-heart::after {
+            position: absolute;
+            z-index: 0;
+            left: 50%;
+            top: 50%;
+            width: 36%;
+            height: 36%;
+            content: '';
+            border-radius: 50%;
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.2);
+            pointer-events: none;
+        }
+
+        .avatar-heart::before {
+            background: radial-gradient(circle, #fff 0%, #fecdd3 22%, rgba(251, 113, 133, 0.25) 52%, transparent 72%);
+        }
+
+        .avatar-heart::after {
+            border: 2px solid rgba(255, 241, 242, 0.9);
+            box-shadow: 0 0 1.4rem rgba(255, 255, 255, 0.9);
+        }
+
+        .heart-door {
+            opacity: 0;
+            transform-box: fill-box;
+        }
+
+        .avatar-stage.heart-opening {
+            z-index: 30;
+            animation: heartPortalZoom 1.2s cubic-bezier(0.3, 0, 0.4, 1) forwards;
+            pointer-events: none;
+        }
+
+        .avatar-stage.heart-opening .avatar-heart {
+            animation: none;
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .avatar-stage.heart-opening .heart-base {
+            opacity: 0.12;
+        }
+
+        .avatar-stage.heart-opening .heart-door {
+            opacity: 1;
+        }
+
+        .avatar-stage.heart-opening .heart-door-left {
+            transform-origin: right center;
+            animation: openHeartLeft 0.85s ease-in forwards;
+        }
+
+        .avatar-stage.heart-opening .heart-door-right {
+            transform-origin: left center;
+            animation: openHeartRight 0.85s ease-in forwards;
+        }
+
+        .avatar-stage.heart-opening .avatar-heart-message,
+        .avatar-stage.heart-opening .guide-avatar,
+        .avatar-stage.heart-opening .heart-click-prompt {
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        .avatar-stage.heart-opening .avatar-heart::before {
+            animation: portalLight 0.95s ease-out forwards;
+        }
+
+        .avatar-stage.heart-opening .avatar-heart::after {
+            animation: portalRing 0.9s ease-out 0.16s forwards;
+        }
+
+        .portal-spark {
+            position: absolute;
+            z-index: 5;
+            left: 50%;
+            top: 57%;
+            width: 0.42rem;
+            height: 0.42rem;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 0 0.85rem #fff, 0 0 1.4rem #fda4af;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .avatar-stage.heart-opening .portal-spark {
+            animation: portalSpark 0.8s cubic-bezier(0.15, 0.65, 0.35, 1) var(--delay) forwards;
+        }
+
+        #story-app.story-entering {
+            animation: storyEntry 0.7s cubic-bezier(0.2, 0.85, 0.25, 1) both;
+        }
+
+        .avatar-heart-message {
+            position: absolute;
+            z-index: 3;
+            left: 50%;
+            top: 52%;
+            width: 80%;
+            color: #fff;
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(calc(0.86rem + 25px), calc(4.25vw + 25px), calc(1.25rem + 25px));
+            font-weight: 800;
+            line-height: 1.15;
+            letter-spacing: 0.01em;
+            text-align: center;
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.85);
+            text-shadow: 0 1px 6px rgba(136, 19, 55, 0.78);
+        }
+
+        .avatar-heart-message small {
+            display: block;
+            margin-top: 0.2rem;
+            font-size: 0.58em;
+            font-weight: 700;
+        }
+
+        .guide-avatar {
+            position: absolute;
+            z-index: 1;
+            right: -1rem;
+            bottom: -0.2rem;
+            width: 6.8rem;
+            height: 9rem;
+            opacity: 0;
+            transform: translateX(5rem);
+            filter: drop-shadow(0 8px 8px rgba(76, 5, 25, 0.18));
+        }
+
+        .heart-click-prompt {
+            position: absolute;
+            z-index: 4;
+            right: -1.2rem;
+            bottom: 0.25rem;
+            width: 10.3rem;
+            padding: 0.5rem 0.65rem;
+            border: 1px solid rgba(255, 255, 255, 0.75);
+            border-radius: 0.85rem 0.85rem 0.15rem 0.85rem;
+            background: rgba(255, 255, 255, 0.94);
+            color: #be123c;
+            font-size: 0.67rem;
+            font-weight: 700;
+            line-height: 1.35;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(136, 19, 55, 0.2);
+            opacity: 0;
+            transform: translateY(0.5rem) scale(0.9);
+        }
+
+        .heart-word {
+            display: block;
+            opacity: 0;
+            transform: translateY(0.4rem) scale(0.72) rotate(-4deg);
+        }
+
+        .heart-word-birthday {
+            margin: -0.08em 0;
+            font-size: 1.14em;
+            letter-spacing: 0.035em;
+        }
+
+        .heart-word-special {
+            width: max-content;
+            max-width: 112%;
+            margin: 0.38rem auto 0;
+            padding: 0.12em 0.45em 0.18em;
+            border: 1px solid rgba(255, 255, 255, 0.65);
+            border-radius: 999px;
+            background: rgba(136, 19, 55, 0.25);
+            box-shadow: 0 0 0 0 rgba(255, 228, 230, 0.55);
+            font-family: 'Caveat', cursive;
+            font-size: 0.78em !important;
+            font-weight: 700;
+            letter-spacing: 0.035em;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.95), 0 2px 5px rgba(136, 19, 55, 0.8);
+        }
+
+        body.page-loaded .heart-word {
+            animation: heartWordPop 0.58s cubic-bezier(0.2, 1.35, 0.35, 1) forwards;
+        }
+
+        body.page-loaded .heart-word-happy { animation-delay: 6.12s; }
+        body.page-loaded .heart-word-birthday { animation-delay: 6.43s; }
+        body.page-loaded .heart-word-special {
+            animation: heartWordPop 0.58s cubic-bezier(0.2, 1.35, 0.35, 1) 6.8s forwards,
+                specialLineFocus 1.7s ease-in-out 7.5s 2;
+        }
+
+        /* The greeting belongs inside the offered heart, so hide the duplicate heading below it. */
+        #intro-screen h1 {
+            display: none;
+        }
+
+        #intro-screen button[onclick="startStory()"],
+        #intro-screen .btn-glow~.text-xs {
+            display: none;
+        }
+
+        body.page-loaded .avatar-character {
+            animation: boyWalksAndKneels 3.6s cubic-bezier(0.22, 0.7, 0.25, 1) both,
+                avatarFadeBehindHeart 2.3s ease-in 4.8s forwards;
+        }
+
+        body.page-loaded .avatar-heart {
+            animation: heartOffer 3.3s cubic-bezier(0.2, 0.75, 0.25, 1) 3.35s forwards,
+                heartGlow 2s ease-in-out 6.65s infinite;
+        }
+
+        body.page-loaded .avatar-heart-message {
+            animation: messageReveal 0.8s ease-out 6.05s forwards;
+        }
+
+        body.page-loaded .guide-avatar {
+            animation: guideArrives 0.8s cubic-bezier(0.2, 0.9, 0.3, 1) 7.2s forwards;
+        }
+
+        body.page-loaded .heart-click-prompt {
+            animation: promptAppears 0.55s ease-out 7.85s forwards;
+        }
+
+        @keyframes boyWalksAndKneels {
+            0% { opacity: 0; transform: translate(-165px, 0) rotate(-2deg); }
+            12% { opacity: 1; }
+            22% { transform: translate(-118px, -4px) rotate(2deg); }
+            38% { transform: translate(-70px, 0) rotate(-2deg); }
+            54% { transform: translate(-28px, -4px) rotate(2deg); }
+            70% { transform: translate(0, 0) rotate(0); }
+            100% { opacity: 1; transform: translate(0, 19px) scaleY(0.88); }
+        }
+
+        @keyframes heartOffer {
+            0% { opacity: 0; transform: translate(-50%, calc(-50% + 1.4rem)) scale(0.18); }
+            18% { opacity: 1; transform: translate(-50%, calc(-50% + 1rem)) scale(0.25); }
+            58% { opacity: 1; transform: translate(-50%, calc(-50% - 0.2rem)) scale(0.55); }
+            100% { opacity: 1; transform: translate(-50%, calc(-50% - 1rem)) scale(1); }
+        }
+
+        @keyframes openHeartLeft {
+            to { transform: translateX(-0.7rem) rotateY(68deg); opacity: 0; }
+        }
+
+        @keyframes openHeartRight {
+            to { transform: translateX(0.7rem) rotateY(-68deg); opacity: 0; }
+        }
+
+        @keyframes heartPortalZoom {
+            0% { transform: scale(1); opacity: 1; filter: blur(0); }
+            42% { transform: scale(1.16) translateY(-0.2rem); opacity: 1; filter: blur(0); }
+            100% { transform: scale(2.8) translateY(-0.8rem); opacity: 0; filter: blur(4px); }
+        }
+
+        @keyframes portalLight {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.2); }
+            38% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(3.6); }
+        }
+
+        @keyframes portalRing {
+            0% { opacity: 0.95; transform: translate(-50%, -50%) scale(0.35); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(4.4); }
+        }
+
+        @keyframes portalSpark {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.2); }
+            25% { opacity: 1; }
+            100% { opacity: 0; transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(1.7); }
+        }
+
+        @keyframes storyEntry {
+            0% { opacity: 0; transform: translateY(1.5rem) scale(0.96); filter: blur(5px); }
+            100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+        }
+
+        @keyframes avatarFadeBehindHeart {
+            0% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        @keyframes guideArrives {
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes promptAppears {
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes messageReveal {
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        @keyframes heartWordPop {
+            0% { opacity: 0; transform: translateY(0.4rem) scale(0.72) rotate(-4deg); }
+            72% { opacity: 1; transform: translateY(-0.08rem) scale(1.12) rotate(1deg); }
+            100% { opacity: 1; transform: translateY(0) scale(1) rotate(0); }
+        }
+
+        @keyframes specialLineFocus {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 228, 230, 0.55); }
+            50% { box-shadow: 0 0 0 0.38rem rgba(255, 228, 230, 0), 0 0 1.2rem rgba(255, 255, 255, 0.75); }
+        }
+
+        @keyframes heartGlow {
+            0%, 100% { filter: drop-shadow(0 0 14px rgba(251, 113, 133, 0.62)); }
+            50% { filter: drop-shadow(0 0 24px rgba(251, 113, 133, 0.95)); }
+        }
+
+        /* Heart Glow Effect */
+        .glow-heart {
+            filter: drop-shadow(0 0 15px rgba(244, 114, 182, 0.8)) drop-shadow(0 0 30px rgba(225, 29, 72, 0.4));
+        }
+
+        /* Falling Floating Hearts */
+        .falling-heart {
+            position: fixed;
+            top: -50px;
+            pointer-events: none;
+            z-index: 30;
+            animation: fall linear infinite;
+        }
+
+        /* Keep the decorative hearts in front of the page content. */
+        #heart-container {
+            z-index: 20 !important;
+        }
+
+        #intro-screen,
+        #story-app,
+        #finale-screen {
+            position: relative;
+            z-index: 10;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-50px) rotate(0deg) scale(0.8);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(105vh) rotate(360deg) scale(1.2);
+                opacity: 0;
+            }
+        }
+
+        /* Custom Scrollbar for story text */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 240, 245, 0.5);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #f472b6;
+            border-radius: 10px;
+        }
+
+        /* Subtle Glow Animation for Buttons */
+        @keyframes pulse-subtle {
+
+            0%,
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 15px rgba(244, 114, 182, 0.4);
+            }
+
+            50% {
+                transform: scale(1.02);
+                box-shadow: 0 0 25px rgba(244, 114, 182, 0.7);
+            }
+        }
+
+        .btn-glow {
+            animation: pulse-subtle 3s infinite ease-in-out;
+        }
+
+        /* Decorative rose blooms around the main cards */
+        .rose-bloom {
+            position: absolute;
+            z-index: 1;
+            pointer-events: none;
+            font-size: clamp(2rem, 5vw, 4rem);
+            line-height: 1;
+            filter: drop-shadow(0 0 12px rgba(251, 113, 133, 0.55));
+            animation: roseFloat 5s ease-in-out infinite;
+        }
+
+        .rose-bloom-left {
+            left: clamp(0.25rem, 5vw, 4rem);
+            top: 14%;
+            transform: rotate(-18deg);
+        }
+
+        .rose-bloom-right {
+            right: clamp(0.25rem, 5vw, 4rem);
+            bottom: 12%;
+            transform: rotate(18deg);
+            animation-delay: 1.4s;
+        }
+
+        .rose-bloom-small {
+            font-size: clamp(1.35rem, 3vw, 2.4rem);
+            opacity: 0.75;
+            animation-delay: 0.7s;
+        }
+
+        .rose-bloom-small-left {
+            left: 16%;
+            bottom: 11%;
+            transform: rotate(-28deg);
+        }
+
+        .rose-bloom-small-right {
+            right: 16%;
+            top: 10%;
+            transform: rotate(24deg);
+            animation-delay: 2s;
+        }
+
+        @keyframes roseFloat {
+
+            0%,
+            100% {
+                translate: 0 0;
+            }
+
+            50% {
+                translate: 0 -8px;
+            }
+        }
+
+        /* Keep the cards comfortable on phones, tablets, and short screens. */
+        @media (max-width: 640px) {
+            body {
+                min-height: 100svh;
+                min-height: 100dvh;
+            }
+
+            header {
+                padding-left: 1rem;
+                padding-right: 1rem;
+                padding-top: 0.85rem;
+                padding-bottom: 0.85rem;
+                gap: 0.75rem;
+                flex-wrap: wrap;
+            }
+
+            header>div:first-child {
+                min-width: 0;
+            }
+
+            header>div:first-child>span:last-child {
+                font-size: 0.9rem;
+            }
+
+            #music-toggle {
+                padding: 0.4rem 0.65rem;
+            }
+
+            #intro-screen {
+                min-height: auto;
+                flex: 1;
+                padding: 1.25rem 1rem 1.5rem;
+            }
+
+            #intro-screen .glass-card,
+            #finale-screen .glass-card {
+                padding: 1.5rem;
+                border-radius: 1.5rem;
+            }
+
+            #story-app {
+                padding: 0.75rem;
+            }
+
+            #story-app>.glass-card {
+                min-height: 0;
+                padding: 1rem;
+                gap: 0.25rem;
+            }
+
+            #story-app .grid {
+                margin-top: 0.5rem;
+                margin-bottom: 0.5rem;
+            }
+
+            #story-app .grid > div:first-child {
+                min-width: 0;
+            }
+
+            #slide-header {
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+
+            #slide-title {
+                font-size: 1.35rem;
+                line-height: 1.3;
+                overflow-wrap: anywhere;
+            }
+
+            #slide-subtitle {
+                font-size: 0.65rem;
+                letter-spacing: 0.08em;
+            }
+
+            #story-app .grid {
+                gap: 1rem;
+            }
+
+            #story-app .grid>div:last-child {
+                aspect-ratio: 16 / 10;
+                min-height: 12rem;
+                max-height: 20rem;
+            }
+
+            #media-display {
+                min-height: 0;
+            }
+
+            #media-display img,
+            #media-display video {
+                object-fit: cover;
+            }
+
+            #story-app .mt-6.pt-4 {
+                margin-top: 1rem;
+                padding-top: 0.75rem;
+                gap: 0.5rem;
+            }
+
+            #prev-btn,
+            #next-btn {
+                min-height: 2.75rem;
+                padding: 0.6rem 0.75rem;
+                font-size: 0.75rem;
+            }
+
+            #next-btn {
+                margin-left: auto;
+            }
+
+            .rose-bloom-small {
+                display: none;
+            }
+
+            .rose-bloom-left {
+                left: 0.1rem;
+                top: 6%;
+            }
+
+            .rose-bloom-right {
+                right: 0.1rem;
+                bottom: 6%;
+            }
+
+            #finale-screen h2 {
+                font-size: 1.65rem;
+                line-height: 1.3;
+            }
+
+            #finale-screen .glass-card {
+                max-height: none;
+            }
+
+            #secret-letter {
+                padding: 1rem;
+            }
+
+            footer {
+                padding: 0.75rem 1rem;
+                line-height: 1.5;
+            }
+        }
+
+        @media (min-width: 641px) and (max-width: 1023px) {
+            #story-app {
+                max-width: 52rem;
+                padding-left: 1.5rem;
+                padding-right: 1.5rem;
+            }
+
+            #story-app>.glass-card {
+                min-height: 0;
+            }
+        }
+
+        @media (max-width: 380px) {
+            #music-text {
+                display: none;
+            }
+
+            #music-toggle {
+                width: 2.5rem;
+                height: 2.5rem;
+                justify-content: center;
+                padding: 0;
+            }
+
+            #slide-header > div:first-child {
+                min-width: 0;
+            }
+
+            #prev-btn span,
+            #next-btn span {
+                white-space: nowrap;
+            }
+
+            #final-choice-buttons {
+                gap: 0.65rem;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        @media (max-height: 700px) and (min-width: 641px) {
+            #intro-screen {
+                min-height: 0;
+                padding-top: 1.5rem;
+                padding-bottom: 1.5rem;
+            }
+
+            #story-app>.glass-card {
+                min-height: 0;
+            }
+        }
+
+        /* Dark rose and pink theme */
+        body.dark-theme {
+            background: linear-gradient(135deg, #4c0519 0%, #881337 52%, #020617 100%) !important;
+            color: #fff1f2;
+        }
+
+        body.dark-theme .glass-card,
+        body.dark-theme .dark-glass {
+            background: rgba(26, 12, 21, 0.78) !important;
+            border-color: rgba(225, 29, 72, 0.38) !important;
+            box-shadow: 0 25px 50px -12px rgba(2, 6, 23, 0.55), 0 0 24px rgba(251, 113, 133, 0.12);
+        }
+
+        body.dark-theme .text-slate-800,
+        body.dark-theme .text-slate-700,
+        body.dark-theme .text-slate-600 {
+            color: #ffe4e6 !important;
+        }
+
+        body.dark-theme .text-slate-400,
+        body.dark-theme .text-rose-300,
+        body.dark-theme .text-rose-400 {
+            color: #fda4af !important;
+        }
+
+        body.dark-theme .text-rose-500,
+        body.dark-theme .text-rose-600,
+        body.dark-theme .text-rose-700,
+        body.dark-theme .text-rose-800,
+        body.dark-theme .text-pink-600 {
+            color: #fb7185 !important;
+        }
+
+        body.dark-theme .bg-rose-50,
+        body.dark-theme .bg-rose-100,
+        body.dark-theme .bg-rose-200,
+        body.dark-theme .bg-pink-100,
+        body.dark-theme .bg-slate-100,
+        body.dark-theme .bg-slate-200 {
+            background-color: rgba(136, 19, 55, 0.35) !important;
+        }
+
+        body.dark-theme .bg-white {
+            background-color: rgba(26, 12, 21, 0.82) !important;
+            color: #ffe4e6 !important;
+        }
+
+        body.dark-theme [class*="bg-pink-100/"],
+        body.dark-theme [class*="bg-rose-50/"],
+        body.dark-theme [class*="bg-rose-100/"] {
+            background-color: rgba(136, 19, 55, 0.35) !important;
+        }
+
+        body.dark-theme [class*="text-rose-300/"],
+        body.dark-theme [class*="text-rose-400/"] {
+            color: rgba(253, 164, 175, 0.85) !important;
+        }
+
+        body.dark-theme .bg-gradient-to-r {
+            background-image: linear-gradient(to right, #e11d48, #db2777, #be123c) !important;
+        }
+
+        body.dark-theme [class*="bg-pink-300/30"] {
+            background-color: rgba(225, 29, 72, 0.18) !important;
+        }
+
+        body.dark-theme [class*="bg-purple-300/30"] {
+            background-color: rgba(126, 34, 206, 0.16) !important;
+        }
+
+        body.dark-theme .border-white\/60,
+        body.dark-theme .border-white\/80,
+        body.dark-theme .border-rose-100,
+        body.dark-theme .border-rose-200,
+        body.dark-theme .border-rose-300,
+        body.dark-theme .border-pink-200\/50 {
+            border-color: rgba(225, 29, 72, 0.38) !important;
+        }
+
+        body.dark-theme .border-rose-100,
+        body.dark-theme .border-rose-200 {
+            border-color: rgba(159, 18, 57, 0.55) !important;
+        }
+
+        body.dark-theme .shadow-rose-300\/50 {
+            --tw-shadow-color: rgba(225, 29, 72, 0.45) !important;
+        }
+
+        /* Let the secret note expand so every line stays visible. */
+        #secret-letter {
+            width: 100%;
+            height: auto;
+            min-height: 0;
+            max-height: none;
+            overflow: visible;
+        }
+
+        #secret-letter-content {
+            display: block;
+            width: 100%;
+            white-space: normal;
+            overflow: visible;
+            overflow-wrap: anywhere;
+            word-break: normal;
+        }
+
+        html[data-journey-blocked] body {
+            visibility: hidden;
+        }
+    </style>
+</head>
+
+<script>
+    try {
+        if (localStorage.getItem('isBlocked') === 'true') {
+            document.documentElement.setAttribute('data-journey-blocked', 'true');
+        }
+    } catch (storageError) {
+        // The main script handles storage failures gracefully.
+    }
+</script>
+
+<body
+    class="dark-theme font-body bg-gradient-to-br from-rose-50 via-pink-100 to-purple-100 text-slate-800 min-h-screen overflow-x-hidden relative flex flex-col justify-between selection:bg-pink-300">
+
+    <!-- Ambient Floating Hearts Background -->
+    <div id="heart-container" class="fixed inset-0 pointer-events-none overflow-hidden z-0"></div>
+
+    <!-- Background Decorative Gradient Orbs -->
+    <div
+        class="fixed top-[-10%] left-[-10%] w-[45vw] h-[45vw] bg-pink-300/30 rounded-full blur-3xl pointer-events-none">
+    </div>
+    <div
+        class="fixed bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] bg-purple-300/30 rounded-full blur-3xl pointer-events-none">
+    </div>
+
+    <!-- Header / Navigation Control Bar -->
+    <header class="relative z-20 w-full px-6 py-4 flex justify-between items-center max-w-5xl mx-auto">
+        <div class="flex items-center space-x-2">
+            <span class="p-2 bg-pink-100/80 rounded-full text-white-600 shadow-sm">
+                <i data-lucide="cake" class="w-5 h-5"></i>
+            </span>
+            <span class="font-serif-title font-semibold text-white-800 text-lg tracking-wide">28th Oct Special</span>
+        </div>
+
+        <div class="flex items-center space-x-3">
+            <!-- Audio Toggle Button -->
+            <button id="music-toggle"
+                class="flex items-center space-x-2 px-3 py-1.5 bg-white/70 hover:bg-white text-rose-600 rounded-full text-xs font-medium shadow-sm transition border border-rose-200">
+                <i id="music-icon" data-lucide="music" class="w-4 h-4"></i>
+                <span id="music-text">Play Soft Music</span>
+            </button>
+            <audio id="bg-music" loop>
+                <source
+                    src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=soft-piano-ambient-111154.mp3"
+                    type="audio/mpeg">
+            </audio>
+        </div>
+    </header>
+
+    <!-- INTRO SCREEN: Interactive SVG Heart Animation -->
+    <section id="intro-screen"
+        class="relative z-10 flex flex-col items-center justify-center min-h-[85vh] text-center px-4 transition-all duration-700">
+        <span class="rose-bloom rose-bloom-left" aria-hidden="true">🌹</span>
+        <span class="rose-bloom rose-bloom-right" aria-hidden="true">🌹</span>
+        <span class="rose-bloom rose-bloom-small rose-bloom-small-left" aria-hidden="true">🌹</span>
+        <span class="rose-bloom rose-bloom-small rose-bloom-small-right" aria-hidden="true">🌹</span>
+        <div
+            class="glass-card max-w-xl w-full p-8 md:p-12 rounded-3xl shadow-2xl flex flex-col items-center border border-white/60 relative overflow-hidden">
+
+            <div class="mb-4 text-rose-500 font-handwriting text-2xl tracking-wide">
+                A Birthday Gift From The Heart...
+            </div>
+
+            <!-- Animated avatar offers a small heart that grows into the birthday greeting. -->
+            <div class="avatar-stage my-4 cursor-pointer transition-transform duration-300 hover:scale-105"
+                onclick="startStory()" role="button" tabindex="0" aria-label="Open the birthday story"
+                onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); startStory(); }">
+                <svg class="avatar-boy" viewBox="0 0 220 220" role="img" aria-label="A boy holding out a heart">
+                    <defs>
+                        <linearGradient id="hoodieGradient" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#fb7185" />
+                            <stop offset="100%" stop-color="#be185d" />
+                        </linearGradient>
+                        <linearGradient id="heartGradient" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#fb7185" />
+                            <stop offset="55%" stop-color="#e11d48" />
+                            <stop offset="100%" stop-color="#be123c" />
+                        </linearGradient>
+                        <linearGradient id="jeansGradient" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#64748b" />
+                            <stop offset="100%" stop-color="#1e293b" />
+                        </linearGradient>
+                    </defs>
+                    <ellipse cx="112" cy="214" rx="69" ry="8" fill="#881337" opacity=".16" />
+                    <g class="avatar-character">
+                        <!-- Kneeling legs and shoes -->
+                        <path d="M97 145c-20 20-30 49-29 73h27l22-47-12-28z" fill="url(#jeansGradient)" />
+                        <path d="M126 145c25 17 38 43 40 73h-31l-17-43 10-30z" fill="url(#jeansGradient)" />
+                        <path d="M65 214h34c5 0 8 3 8 7H61c0-4 2-7 4-7z" fill="#111827" />
+                        <path d="M136 214h35c5 0 8 3 8 7h-47c0-4 1-7 4-7z" fill="#111827" />
+                        <path d="M70 217h24" stroke="#94a3b8" stroke-width="1.8" opacity=".55" />
+                        <!-- Hoodie, collar and chest -->
+                        <path d="M66 175c3-41 16-62 40-69h14c26 8 39 30 42 69z" fill="url(#hoodieGradient)" />
+                        <path d="M83 112c5 15 16 23 28 23s23-8 28-23l-17-13h-22z" fill="#e9a27f" />
+                        <path d="M91 115l20 20 20-20" fill="none" stroke="#fff1f2" stroke-width="3" opacity=".7" />
+                        <path d="M99 133v32m24-32v32" stroke="#fce7f3" stroke-width="2" stroke-linecap="round" opacity=".65" />
+                        <!-- Arms and hands offered forward -->
+                        <path d="M65 142c17 4 31 16 45 33l-12 12c-17-14-31-20-45-21z" fill="#e9a27f" />
+                        <path d="M158 142c-17 4-31 16-45 33l12 12c17-14 31-20 45-21z" fill="#e9a27f" />
+                        <path d="M59 148c15 2 28 11 41 27l-11 14c-15-11-27-15-39-17z" fill="url(#hoodieGradient)" />
+                        <path d="M163 148c-15 2-28 11-41 27l11 14c15-11 27-15 39-17z" fill="url(#hoodieGradient)" />
+                        <circle cx="106" cy="178" r="5" fill="#f4b08d" />
+                        <circle cx="117" cy="178" r="5" fill="#f4b08d" />
+                        <!-- Face, ears and textured short hair -->
+                        <ellipse cx="69" cy="70" rx="7" ry="10" fill="#e9a27f" />
+                        <ellipse cx="153" cy="70" rx="7" ry="10" fill="#e9a27f" />
+                        <path d="M111 23c25 0 42 18 42 43 0 30-16 51-42 51S69 96 69 66c0-25 17-43 42-43z" fill="#f4b08d" />
+                        <path d="M69 67c-2-32 17-54 43-54 28 0 47 21 41 56-9-8-14-19-16-31-8 8-22 13-37 14-8 1-20 0-31-3z" fill="#251b22" />
+                        <path d="M75 45c10-20 39-28 61-12M82 35c16-13 36-13 54 0" fill="none" stroke="#3b2a31" stroke-width="7" stroke-linecap="round" />
+                        <path d="M85 71q8-5 16 0m20 0q8-5 16 0" fill="none" stroke="#3f2730" stroke-width="4" stroke-linecap="round" />
+                        <ellipse cx="94" cy="75" rx="3" ry="4" fill="#2a1a20" />
+                        <ellipse cx="129" cy="75" rx="3" ry="4" fill="#2a1a20" />
+                        <path d="M112 76l-3 12 5 1" fill="none" stroke="#cb795f" stroke-width="2" stroke-linecap="round" />
+                        <path d="M101 97q10 8 21 0" fill="none" stroke="#9c4050" stroke-width="3" stroke-linecap="round" />
+                        <path d="M87 104c6 10 14 15 24 15s19-5 25-15c-6 19-15 28-25 28s-19-9-24-28z" fill="#dc8d6f" opacity=".18" />
+                    </g>
+                </svg>
+                <div class="avatar-heart" aria-hidden="true">
+                    <svg class="avatar-heart-shape" viewBox="0 0 100 92">
+                        <defs>
+                            <linearGradient id="offeredHeartGradient" x1="0" y1="0" x2="1" y2="1">
+                                <stop offset="0%" stop-color="#fb7185" />
+                                <stop offset="55%" stop-color="#e11d48" />
+                                <stop offset="100%" stop-color="#be123c" />
+                            </linearGradient>
+                        </defs>
+                        <path class="heart-base" d="M50 88 10 49C-9 30 4 3 27 3c11 0 19 6 23 15C54 9 62 3 73 3c23 0 36 27 17 46z"
+                            fill="url(#offeredHeartGradient)" stroke="#fff1f2" stroke-width="2" />
+                        <path class="heart-door heart-door-left" d="M50 88 10 49C-9 30 4 3 27 3c11 0 19 6 23 15z"
+                            fill="url(#offeredHeartGradient)" stroke="#fff1f2" stroke-width="2" />
+                        <path class="heart-door heart-door-right" d="M50 88 50 18C54 9 62 3 73 3c23 0 36 27 17 46z"
+                            fill="url(#offeredHeartGradient)" stroke="#fff1f2" stroke-width="2" />
+                    </svg>
+                    <span class="avatar-heart-message">
+                        <span class="heart-word heart-word-happy">Happy</span>
+                        <span class="heart-word heart-word-birthday">Birthday</span>
+                        <small class="heart-word heart-word-special">✦ My Special One ✦</small>
+                    </span>
+                </div>
+                <span class="portal-spark" style="--x:-8rem; --y:-4rem; --delay:0.08s"></span>
+                <span class="portal-spark" style="--x:7.5rem; --y:-5rem; --delay:0.14s"></span>
+                <span class="portal-spark" style="--x:-9rem; --y:2.5rem; --delay:0.2s"></span>
+                <span class="portal-spark" style="--x:9rem; --y:2rem; --delay:0.11s"></span>
+                <span class="portal-spark" style="--x:-3rem; --y:-7rem; --delay:0.18s"></span>
+                <span class="portal-spark" style="--x:3.5rem; --y:7rem; --delay:0.24s"></span>
+                <!-- A second version of the boy arrives to point visitors toward the heart. -->
+                <svg class="guide-avatar" viewBox="0 0 90 130" aria-hidden="true">
+                    <defs>
+                        <linearGradient id="guideHoodie" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#fb7185" />
+                            <stop offset="100%" stop-color="#be185d" />
+                        </linearGradient>
+                    </defs>
+                    <ellipse cx="48" cy="124" rx="32" ry="4" fill="#881337" opacity=".14" />
+                    <path d="M23 120c1-24 10-38 26-41h8c17 4 25 17 27 41z" fill="url(#guideHoodie)" />
+                    <path d="M27 91c-10 3-16 10-22 20l8 5c7-8 14-12 23-13z" fill="url(#guideHoodie)" />
+                    <path d="M8 112c5-6 10-9 17-10l5 8c-8 2-13 5-17 10z" fill="#f4b08d" />
+                    <circle cx="53" cy="46" r="25" fill="#f4b08d" />
+                    <path d="M28 47c-1-21 11-35 26-35 18 0 30 14 25 36-5-6-8-13-9-20-11 8-27 11-42 9z" fill="#251b22" />
+                    <path d="M39 49h2m22 0h2" stroke="#3f2730" stroke-width="3" stroke-linecap="round" />
+                    <path d="M48 64q6 5 12 0" fill="none" stroke="#9c4050" stroke-width="2" stroke-linecap="round" />
+                    <path d="M45 77l8 9 8-9" fill="none" stroke="#fff1f2" stroke-width="2" opacity=".75" />
+                </svg>
+                <div class="heart-click-prompt">Mere dil par click karke use kholo,<br>aur mere dil ki saari baatein jaan lo... khud ke liye ✦</div>
+            </div>
+
+            <h1 class="font-serif-title text-3xl md:text-4xl font-extrabold text-slate-800 mb-3 leading-tight">
+                Happy Birthday, <span
+                    class="bg-clip-text text-transparent bg-gradient-to-r from-rose-600 to-pink-500">My Special
+                    One</span> ✨
+            </h1>
+
+            <p class="text-slate-600 text-sm md:text-base leading-relaxed mb-8 max-w-md">
+                Kuch baatein aisi hoti hain jo bol nahi paate... to socha aaj tumhare birthday pe ek choti si memory
+                lane banau.
+            </p>
+
+            <button onclick="startStory()"
+                class="btn-glow px-8 py-3.5 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white font-medium rounded-full shadow-lg hover:shadow-rose-300/50 transition-all transform hover:-translate-y-0.5 flex items-center space-x-2 text-base">
+                <span>Begin Our Journey</span>
+                <i data-lucide="sparkles" class="w-5 h-5"></i>
+            </button>
+            <span class="text-xs text-rose-400 mt-3 font-medium">Click heart or button to start</span>
+        </div>
+    </section>
+
+    <!-- MAIN STORYBOOK APP CONTAINER (Hidden initially) -->
+    <main id="story-app"
+        class="hidden relative z-10 max-w-3xl mx-auto w-full px-4 py-4 flex-1 flex flex-col justify-center">
+        <span class="rose-bloom rose-bloom-left" aria-hidden="true">🌹</span>
+        <span class="rose-bloom rose-bloom-right" aria-hidden="true">🌹</span>
+
+        <!-- Progress Bar Indicator -->
+        <div
+            class="mb-4 w-full bg-white/50 backdrop-blur-sm rounded-full p-1 border border-pink-200/50 shadow-inner flex items-center justify-between">
+            <div class="flex items-center space-x-2 px-3">
+                <i data-lucide="book-open" class="w-4 h-4 text-rose-500"></i>
+                <span id="slide-indicator" class="text-xs font-semibold text-rose-700">Chapter 1 of 10</span>
+            </div>
+            <div class="w-1/2 bg-rose-100 rounded-full h-2.5 overflow-hidden">
+                <div id="progress-bar"
+                    class="bg-gradient-to-r from-rose-400 to-pink-500 h-full w-[10%] transition-all duration-500 rounded-full">
+                </div>
+            </div>
+        </div>
+
+        <!-- Dynamic Slide Card Container -->
+        <div
+            class="glass-card rounded-3xl p-6 md:p-8 shadow-2xl border border-white/80 transition-all duration-500 flex flex-col justify-between min-h-[520px]">
+
+            <!-- Slide Title / Header -->
+            <div id="slide-header" class="mb-4 flex items-center justify-between border-b border-rose-100 pb-3">
+                <div>
+                    <span id="slide-subtitle"
+                        class="text-xs font-bold uppercase tracking-widest text-rose-400 font-body">Chapter 1</span>
+                    <h2 id="slide-title" class="font-serif-title text-2xl md:text-3xl font-bold text-slate-800">The
+                        First Hello</h2>
+                </div>
+                <div class="p-2 bg-pink-100/70 rounded-full text-rose-500">
+                    <i id="slide-icon" data-lucide="compass" class="w-6 h-6"></i>
+                </div>
+            </div>
+
+            <!-- Slide Content Body -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-auto items-center">
+
+                <!-- Text / Poem Section -->
+                <div class="space-y-4">
+                    <p id="slide-text" class="text-slate-700 text-sm md:text-base leading-relaxed font-body">
+                        Text content will load dynamically...
+                    </p>
+                    <div id="slide-subtext"
+                        class="font-handwriting text-rose-600 text-xl pt-2 border-t border-dashed border-rose-200/80">
+                        Subtext / Feeling note...
+                    </div>
+                </div>
+
+                <!-- Media Section (Image / AI Video Box with Upload/Replace capability) -->
+                <div
+                    class="relative w-full aspect-square md:aspect-4/3 rounded-2xl overflow-hidden bg-rose-50/80 border-2 border-dashed border-rose-300 flex flex-col items-center justify-center group shadow-inner">
+
+                    <!-- Dynamic Media Content Display -->
+                    <div id="media-display"
+                        class="w-full h-full flex flex-col items-center justify-center p-4 text-center">
+                        <i id="media-icon" data-lucide="image" class="w-10 h-10 text-rose-300 mb-2"></i>
+                        <span id="media-label" class="text-xs font-medium text-rose-500">Click below to attach
+                            photo</span>
+                    </div>
+
+                    <!-- Hidden File Input for Users to Upload Custom Image/Video -->
+                    <input type="file" id="media-upload-input" accept="image/*,video/*" class="hidden"
+                        onchange="handleMediaUpload(event)">
+
+                    <!-- Upload Helper Overlay Button -->
+                    <button onclick="document.getElementById('media-upload-input').click()"
+                        class="absolute bottom-3 right-3 px-3 py-1.5 bg-white/90 hover:bg-white text-rose-600 rounded-lg text-xs font-semibold shadow-md border border-rose-200 flex items-center space-x-1.5 transition">
+                        <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+                        <span id="upload-btn-text">Add Photo</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Controls Navigation Bar -->
+            <div class="mt-6 pt-4 border-t border-rose-100 flex items-center justify-between">
+                <button id="prev-btn" onclick="prevSlide()"
+                    class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium rounded-full text-sm transition flex items-center space-x-2 disabled:opacity-40 disabled:cursor-not-allowed">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                    <span>Previous</span>
+                </button>
+
+                <!-- Page Dots -->
+                <div id="dots-container" class="hidden sm:flex space-x-1.5">
+                    <!-- Dots generated in JS -->
+                </div>
+
+                <button id="next-btn" onclick="nextSlide()"
+                    class="px-6 py-2.5 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white font-medium rounded-full text-sm shadow-md transition flex items-center space-x-2">
+                    <span>Next Chapter</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- FINALE SCREEN (Hidden initially) -->
+    <section id="finale-screen" class="hidden relative z-10 max-w-2xl mx-auto w-full px-4 py-8 text-center my-auto">
+        <span class="rose-bloom rose-bloom-left" aria-hidden="true">🌹</span>
+        <span class="rose-bloom rose-bloom-right" aria-hidden="true">🌹</span>
+        <div class="glass-card rounded-3xl p-8 md:p-12 shadow-2xl border border-white/80 flex flex-col items-center">
+
+            <div
+                class="w-20 h-20 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mb-4 shadow-inner animate-bounce">
+                <i data-lucide="heart-handshake" class="w-10 h-10"></i>
+            </div>
+
+            <span class="text-xs font-bold uppercase tracking-widest text-rose-400 mb-1">Final Chapter</span>
+            <h2 class="font-serif-title text-3xl md:text-4xl font-extrabold text-slate-800 mb-4">
+                Kya mere sath jindagi bhar ka safar chahoge?
+            </h2>
+
+            <p class="text-slate-600 text-sm md:text-base leading-relaxed mb-8 max-w-lg font-body">
+                Chahe dosti bolu ya isse bhi gehra koi rishta... Mere liye tumhari khushi sabse pehle hai. bas itna
+                chahta hu ki aane wale saalo mein bhi main tumhara sath chahta hu.
+            </p>
+
+            <p class="text-rose-500 font-semibold text-sm md:text-base mb-4" aria-live="polite">
+                Niche diye gaye buttons me se koi ek button par click karo:<bR> pr dhyan rakhna and soch samaj kr button
+                pr click krna sirf dost rkhna hai ya dost se jyada
+            </p>
+
+            <div id="final-choice-buttons"
+                class="flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-md">
+                <button onclick="handleFinaleChoice('forever')"
+                    class="w-full sm:w-auto flex-1 px-6 py-3.5 bg-gradient-to-r from-rose-500 to-pink-500 text-white font-semibold rounded-2xl shadow-lg hover:shadow-rose-300 transition-all transform hover:-translate-y-0.5 flex items-center justify-center space-x-2 text-sm">
+                    <i data-lucide="sparkles" class="w-4 h-4"></i>
+                    <span>Dost Se Kuch Zyada 🤍</span>
+                </button>
+
+                <button onclick="handleFinaleChoice('besties')"
+                    class="w-full sm:w-auto flex-1 px-6 py-3.5 bg-white text-rose-600 border-2 border-rose-300 hover:bg-rose-50 font-semibold rounded-2xl shadow-sm transition-all text-sm flex items-center justify-center space-x-2">
+                    <i data-lucide="heart" class="w-4 h-4"></i>
+                    <span>Sirf Dost ✨</span>
+                </button>
+            </div>
+
+            <!-- Dynamic Secret Letter Reveal Container -->
+            <div id="secret-letter"
+                class="hidden mt-8 p-6 bg-rose-50/90 rounded-2xl border border-rose-200 text-left w-full transition-all duration-500">
+                <div class="flex items-center space-x-2 text-rose-600 font-serif-title font-bold text-lg mb-2">
+                    <i data-lucide="mail-open" class="w-5 h-5"></i>
+                    <span>A Secret Note For You</span>
+                </div>
+                <p id="secret-letter-content" class="text-slate-700 text-sm leading-relaxed font-body">
+                    <!-- Loaded dynamically -->
+                </p>
+                <div class="mt-4 text-right font-handwriting text-4xl text-white-600">
+                    - Kya Tum ❤️️ Meri banogi? <br>
+                </div>
+            </div>
+
+            <div id="note-decision-action" class="hidden mt-6 flex justify-center">
+                <span id="note-decision-wait" class="hidden text-sm text-rose-500 text-center">
+                    Reject / Block option 25 seconds baad available hoga...
+                </span>
+                <button id="note-decision-button" type="button" onclick="handleNoteDecision()"
+                    class="px-8 py-3 bg-gradient-to-r from-rose-500 to-pink-500 text-white font-semibold rounded-full shadow-lg hover:shadow-rose-300 transition-all">
+                    YES
+                </button>
+            </div>
+
+            <button onclick="resetStory()" class="mt-8 text-xs text-slate-400 hover:text-rose-500 underline transition">
+                Replay From Beginning
+            </button>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="relative z-10 py-4 text-center text-xs text-rose-400/80 font-medium">
+        Crafted with deep care & friendship • 28th October Birthday Celebration
+    </footer>
+
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Story Slides Data Array (70% Friendship + 30% Subtle Soft Romance)
+        const storySlides = [
+            {
+                subtitle: "Chapter 1 • The Beginning",
+                title: "Woh Pehli Mulaqaat...",
+                text: "Sach kahu toh jab hum pehli baar mile the, mujhe pata nahi tha ki tum meri life ka itna khoobsurat hissa ban jaogi. Ek normal sa din tha, par tumse baat karke laga jaise sab kuch thoda zyada bright ho gaya ho.",
+                subtext: "Kuch log bina kisi shor ke aapki zindagi mein khas ban jaate hain...",
+                icon: "sparkles",
+                mediaType: "image",
+                mediaLabel: "Add Pehli Mulaqaat Photo Here",
+                placeholderSrc: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=600&q=80"
+            },
+            {
+                subtitle: "Chapter 2 • The Unspoken Bond",
+                title: "Late Night Talks & Smiles",
+                text: "Din bhar ki thakane ke baad, tumse baatein karna hamesha sabse relaxing moment hota hai. Woh bewajah ke jokes pe hasna, aur ghanto bina bore hue baatein karte rehna... Yeh friendship mere liye bohot precious hai.",
+                subtext: "Tumhari ek hansi poore din ki thakan mita deti hai...",
+                icon: "message-circle-heart",
+                mediaType: "image",
+                mediaLabel: "Add Memory / Chat Photo Here",
+                placeholderSrc: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=600&q=80"
+            },
+            {
+                subtitle: "Chapter 3 • Your Comfort",
+                title: "Mera Safe Haven",
+                text: "Life mein chahe kitni bhi pareshani ho, jab tumse baat hoti hai toh lagta hai sab theek ho jayega. Tumne hamesha bina kisi judgment ke meri baatein suni hain. Aisa dost milna naseeb ki baat hoti hai.",
+                subtext: "Tumhare saath hone se ek alag hi sukoon milta hai...",
+                icon: "shield-check",
+                mediaType: "image",
+                mediaLabel: "Add Comfort / Friendship Photo",
+                placeholderSrc: "https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=600&q=80"
+            },
+            {
+                subtitle: "Chapter 4 • What Makes You Special",
+                title: "Tumhari Woh Masoomiyat",
+                text: "Tumhari sabse acchi baat pata hai kya hai? Tumhara woh dil jo sabke liye care karta hai. Tumhari choti-choti baato pe khush hona aur har jagah positive vibes failana... Yeh sab mujhe bohot pasand hai.",
+                subtext: "Tum jaisi ho, waisi hi sabse khoobsurat ho...",
+                icon: "smile",
+                mediaType: "image",
+                mediaLabel: "Add Her Favorite Portrait Photo",
+                placeholderSrc: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=600&q=80"
+            },
+            {
+                subtitle: "Chapter 5 • AI Dream Fantasy",
+                title: "Our Story In AI Vision",
+                text: "Mene ek AI video generate karwaya hai yeh dikhane ke liye ki humari friendship aur bond kitna magic se bhara lagta hai. Jab tum ise dekhogi, toh shayad samajh paogi ki mere nazariye se humari jodi kitni pyaari lagti hai.",
+                subtext: "A special AI video dedicated to our journey...",
+                icon: "video",
+                mediaType: "video",
+                mediaLabel: "Add AI Generated Video Here",
+                placeholderSrc: "" // Video container logic
+            },
+            {
+                subtitle: "Chapter 6 • Subtle Whispers",
+                title: "Unsaid Feelings",
+                text: "Maine kabhi tumse harsh pressure mein baatein nahi ki, kyunki tumhari dosti mere liye sabse pehle hai. Par sach yeh bhi hai ki mere dil ke ek kone mein tumhare liye ek bohot hi special jagah hai... jo kisi aur ki nahi ho sakti.",
+                subtext: "Baatein kam bolti hain, par jazbaat bohot gehre hain...",
+                icon: "heart-handshake",
+                mediaType: "image",
+                mediaLabel: "Add Romantic / Warm Aesthetic Photo",
+                placeholderSrc: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&w=600&q=80"
+            },
+            {
+                subtitle: "Chapter 7 • Birthday Blessing",
+                title: "28th October Special Wish",
+                text: "Aaj tumhare is khas din pe, main rab se bas yahi dua karta hu ki tumhari life mein hamesha khushiyaan, safalta aur muskurahat rahe. Tum jo bhi chaho, woh tumhe mile.",
+                subtext: "Happy Birthday! Tum hamesha aise hi chamakti raho ⭐",
+                icon: "gift",
+                mediaType: "image",
+                mediaLabel: "Add Birthday Cake / Celebration Image",
+                placeholderSrc: "https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=600&q=80"
+            },
+            {
+                subtitle: "Chapter 8 • My Promise",
+                title: "Hamesha Saath Rehne Ka Wada",
+                text: "Chahe waqt kitna bhi badal jaye, halaat kaise bhi ho... main hamesha tumhara best friend banke tumhare saath khada rahungi. Tum jab bhi piche mudke dekhogi, mujhe wahi paogi.",
+                subtext: "No matter what, I will always be your safe spot...",
+                icon: "sun",
+                mediaType: "image",
+                mediaLabel: "Add Sunset / Promise Photo",
+                placeholderSrc: "https://images.unsplash.com/photo-1499209974431-9dddcece7f88?auto=format&fit=crop&w=600&q=80"
+            }
+        ];
+
+        // App State Variables
+        let currentSlideIndex = 0;
+        let isAudioPlaying = false;
+        let isHeartOpening = false;
+        let pendingNoteDecision = null;
+        let pendingRevealTimer = null;
+        let pendingRevealInterval = null;
+        const uploadedMediaMap = {}; // Stores custom user uploads per slide index
+
+        // Initialize Background Falling Hearts FX
+        function createFallingHearts() {
+            const container = document.getElementById('heart-container');
+            const heartSymbols = ['❤️', '💖', '🌸', '✨', '💕'];
+
+            for (let i = 0; i < 20; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'falling-heart text-rose-300/60 font-sans';
+                heart.innerText = heartSymbols[Math.floor(Math.random() * heartSymbols.length)];
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDuration = (Math.random() * 5 + 5) + 's';
+                heart.style.animationDelay = (Math.random() * 5) + 's';
+                heart.style.fontSize = (Math.random() * 14 + 14) + 'px';
+                container.appendChild(heart);
+            }
+        }
+
+        // Start Storybook Engine
+        function startStory() {
+            if (isHeartOpening) return;
+
+            const introScreen = document.getElementById('intro-screen');
+            const avatarStage = document.querySelector('.avatar-stage');
+
+            // Open the heart first, then enter the story as if moving through its doorway.
+            if (!introScreen.classList.contains('hidden') && avatarStage) {
+                isHeartOpening = true;
+                avatarStage.classList.add('heart-opening');
+
+                window.setTimeout(() => {
+                    introScreen.classList.add('hidden');
+                    const storyApp = document.getElementById('story-app');
+                    storyApp.classList.remove('hidden');
+                    storyApp.classList.remove('story-entering');
+                    void storyApp.offsetWidth;
+                    storyApp.classList.add('story-entering');
+                    playAudio();
+                    renderSlide(0);
+                    renderDots();
+                    isHeartOpening = false;
+                }, 1200);
+                return;
+            }
+
+            document.getElementById('intro-screen').classList.add('hidden');
+            document.getElementById('story-app').classList.remove('hidden');
+
+            // Try playing background audio automatically on click
+            playAudio();
+
+            // Render first slide
+            renderSlide(0);
+            renderDots();
+        }
+
+        // Render Current Slide
+        function renderSlide(index) {
+            const slide = storySlides[index];
+            if (!slide) return;
+
+            window.eventTracker?.logChapterView(index + 1, slide.title);
+
+            // Header Elements
+            document.getElementById('slide-subtitle').innerText = slide.subtitle;
+            document.getElementById('slide-title').innerText = slide.title;
+            document.getElementById('slide-text').innerText = slide.text;
+            document.getElementById('slide-subtext').innerText = slide.subtext;
+
+            // Icon update
+            const iconContainer = document.getElementById('slide-icon');
+            iconContainer.setAttribute('data-lucide', slide.icon);
+
+            // Progress bar update
+            const total = storySlides.length;
+            document.getElementById('slide-indicator').innerText = `Chapter ${index + 1} of ${total}`;
+            document.getElementById('progress-bar').style.width = `${((index + 1) / total) * 100}%`;
+
+            // Navigation Buttons State
+            document.getElementById('prev-btn').disabled = (index === 0);
+
+            const nextBtn = document.getElementById('next-btn');
+            if (index === total - 1) {
+                nextBtn.innerHTML = `<span>Go To Finale</span><i data-lucide="sparkles" class="w-4 h-4"></i>`;
+            } else {
+                nextBtn.innerHTML = `<span>Next Chapter</span><i data-lucide="arrow-right" class="w-4 h-4"></i>`;
+            }
+
+            // Render Media Section (Uploads or Placeholders)
+            renderMediaSection(index);
+
+            // Update Pagination Dots
+            updateDots(index);
+
+            // Re-initialize icons
+            lucide.createIcons();
+        }
+
+        // Render Media (Image or AI Video)
+        function renderMediaSection(index) {
+            const slide = storySlides[index];
+            const displayContainer = document.getElementById('media-display');
+            const uploadBtnText = document.getElementById('upload-btn-text');
+
+            // Check if user uploaded a file for this slide
+            if (uploadedMediaMap[index]) {
+                const fileData = uploadedMediaMap[index];
+                if (fileData.type.startsWith('video/')) {
+                    displayContainer.innerHTML = `<video src="${fileData.url}" controls class="w-full h-full object-cover rounded-xl"></video>`;
+                } else {
+                    displayContainer.innerHTML = `<img src="${fileData.url}" alt="Slide Media" class="w-full h-full object-cover rounded-xl shadow-sm"/>`;
+                }
+                uploadBtnText.innerText = "Replace Media";
+                return;
+            }
+
+            // Default Placeholders
+            if (slide.mediaType === 'video') {
+                displayContainer.innerHTML = `
+                    <div class="flex flex-col items-center justify-center p-4 text-center">
+                        <div class="w-12 h-12 bg-rose-100 rounded-full flex items-center justify-center text-rose-500 mb-2 animate-pulse">
+                            <i data-lucide="clapperboard" class="w-6 h-6"></i>
+                        </div>
+                        <span class="text-sm font-semibold text-rose-700 mb-1">AI Video Placeholder</span>
+                        <p class="text-xs text-rose-400 max-w-xs mb-2">Upload your generated AI video here to display your dream fantasy story!</p>
+                    </div>
+                `;
+                uploadBtnText.innerText = "Add AI Video";
+            } else {
+                displayContainer.innerHTML = `
+                    <img src="${slide.placeholderSrc}" alt="Placeholder" class="w-full h-full object-cover rounded-xl opacity-90 hover:opacity-100 transition">
+                `;
+                uploadBtnText.innerText = "Replace Photo";
+            }
+        }
+
+        // Handle File Upload from Input
+        function handleMediaUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const url = URL.createObjectURL(file);
+            uploadedMediaMap[currentSlideIndex] = {
+                url: url,
+                type: file.type
+            };
+
+            // Re-render media
+            renderMediaSection(currentSlideIndex);
+        }
+
+        // Navigation Next / Prev
+        function nextSlide() {
+            if (currentSlideIndex < storySlides.length - 1) {
+                currentSlideIndex++;
+                renderSlide(currentSlideIndex);
+            } else {
+                // Proceed to Finale Screen
+                document.getElementById('story-app').classList.add('hidden');
+                document.getElementById('finale-screen').classList.remove('hidden');
+                triggerConfetti();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlideIndex > 0) {
+                currentSlideIndex--;
+                renderSlide(currentSlideIndex);
+            }
+        }
+
+        // Render Navigation Dots
+        function renderDots() {
+            const container = document.getElementById('dots-container');
+            container.innerHTML = '';
+            storySlides.forEach((_, idx) => {
+                const dot = document.createElement('button');
+                dot.className = `w-2.5 h-2.5 rounded-full transition-all ${idx === 0 ? 'bg-rose-500 w-5' : 'bg-rose-200'}`;
+                dot.onclick = () => {
+                    currentSlideIndex = idx;
+                    renderSlide(idx);
+                };
+                container.appendChild(dot);
+            });
+        }
+
+        function updateDots(index) {
+            const dots = document.getElementById('dots-container').children;
+            Array.from(dots).forEach((dot, idx) => {
+                if (idx === index) {
+                    dot.className = 'w-5 h-2.5 rounded-full bg-rose-500 transition-all';
+                } else {
+                    dot.className = 'w-2.5 h-2.5 rounded-full bg-rose-200 transition-all';
+                }
+            });
+        }
+
+        // Audio Toggle logic
+        const musicBtn = document.getElementById('music-toggle');
+        const bgMusic = document.getElementById('bg-music');
+        const musicIcon = document.getElementById('music-icon');
+        const musicText = document.getElementById('music-text');
+
+        function playAudio() {
+            bgMusic.play().then(() => {
+                isAudioPlaying = true;
+                musicText.innerText = "Music Playing";
+                musicIcon.setAttribute('data-lucide', 'volume-2');
+                lucide.createIcons();
+            }).catch(e => {
+                console.log("Audio play prevented by browser settings.");
+            });
+        }
+
+        musicBtn.onclick = function () {
+            if (isAudioPlaying) {
+                bgMusic.pause();
+                isAudioPlaying = false;
+                musicText.innerText = "Play Soft Music";
+                musicIcon.setAttribute('data-lucide', 'music');
+            } else {
+                playAudio();
+            }
+            lucide.createIcons();
+        };
+
+        // Trigger Confetti Fireworks
+        function triggerConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 80,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#f472b6', '#fb7185', '#c084fc']
+                });
+            }
+        }
+
+        // Handle Finale Choice Selections
+        function handleFinaleChoice(choice) {
+            triggerConfetti();
+            const letterBox = document.getElementById('secret-letter');
+            const letterContent = document.getElementById('secret-letter-content');
+            const choiceButtons = document.getElementById('final-choice-buttons');
+            const actionBox = document.getElementById('note-decision-action');
+            const actionButton = document.getElementById('note-decision-button');
+            const waitMessage = document.getElementById('note-decision-wait');
+
+            letterBox.classList.remove('hidden');
+            letterBox.appendChild(actionBox);
+            choiceButtons.classList.add('hidden');
+            pendingNoteDecision = choice === 'forever' ? 'ACCEPTED' : 'BLOCKED';
+            actionButton.textContent = pendingNoteDecision === 'ACCEPTED' ? 'YES' : 'Reject / Block';
+            actionButton.className = pendingNoteDecision === 'ACCEPTED'
+                ? 'px-8 py-3 bg-gradient-to-r from-emerald-500 to-green-500 text-white font-semibold rounded-full shadow-lg hover:shadow-green-300 transition-all'
+                : 'px-8 py-3 bg-slate-800 text-slate-100 font-semibold rounded-full shadow-lg hover:bg-slate-700 transition-all';
+            actionBox.classList.remove('hidden');
+            actionButton.classList.remove('hidden');
+            waitMessage.classList.add('hidden');
+            clearTimeout(pendingRevealTimer);
+            clearInterval(pendingRevealInterval);
+
+            if (pendingNoteDecision === 'BLOCKED') {
+                let secondsLeft = 25;
+                actionButton.classList.add('hidden');
+                waitMessage.classList.remove('hidden');
+                waitMessage.textContent = `Reject / Block option ${secondsLeft} seconds baad available hoga...`;
+                pendingRevealInterval = window.setInterval(() => {
+                    secondsLeft -= 1;
+                    waitMessage.textContent = `Reject / Block option ${secondsLeft} seconds baad available hoga...`;
+                }, 1000);
+                pendingRevealTimer = window.setTimeout(() => {
+                    clearInterval(pendingRevealInterval);
+                    waitMessage.classList.add('hidden');
+                    actionButton.classList.remove('hidden');
+                }, 25000);
+            }
+
+            if (choice === 'forever') {
+                letterContent.innerText = "Tumne 'Dost Se Kuch Zyada' choose kiya hai. Tum mere liye sirf ek dost nahi ho; tum mere dil ke bohot kareeb ho. Main is khoobsurat rishte ko poori imaandari aur respect ke saath sambhalna chahta hoon. Mera ek sachha waada hai tumse...Agar tumne aaj mera hath thama hai, toh bas ek baat par yakeen rakhna—Zindagi chahe kitni bhi mushkil ho jaye, main kabhi tumhara sath nahi chhodunga. Jab tak tum chaho, main hamesha tumhare bilkul paas, tumhari sabse badi strength ban kar khada rahunga. Main shayad duniya ka sabse perfect insaan na hoon, lekin main tumhein duniya ki har khushi dene ki aakhri hadd tak koshish karunga. Aaj ke baad tumhari har pareshani, har stress mera hai... aur meri har khushi, meri har kamyabi sirf tumhari.Tumhein kabhi kisi takleef me akele nahi hone dunga. Tum mere liye sirf ek pasand nahi ho, tum mera sachha saaya ho. Thank you mere jeevan me aane ke liye...";
+            } else {
+                letterContent.innerText = "Tumne 'Sirf Dost' choose kiya hai. Best Friends Forever! Ek baat sach bolun? Maine koshish bohot ki tumhein sirf 'ek dost' ki tarah dekhne ki... lekin mera dil tum par aakar aisi jagah ruk gaya jahan se pichhe mudna ab mere bass me nahi hai. Main jhootha nahi ban sakta... tumhein har din yaad karke sirf dost rakhne ki koshish mere liye roz thoda thoda marne jaisa hoga. Main nahi chahta ki meri wajah se tumhari zindagi me koi bhi uncomfortable moment aaye, aur na hi main tumse tumhara ye pagal sa dost chheen na chahta hoon.  Isliye ek aakhri request hai tumse... Agar tumhare dil me mere liye wo jagah nahi hai jo mere dil me h, toh please  mujhe  BLOCK kar dena.  Main tumse door ho jaunga taaki tum bina kisi tension ke jee sako... Lekin haan, yaad rakhna... Life me kabhi bhi, kaisi bhi, kahi bhi, chahe 1 saal baad ya 10 saal baad, agar tumhein meri kisi bhi tarah ki help ki zaroorat ho... bas ek Mail kar dena. Main bina kisi sawal ke aa jauga. Lekin tum mujhe unblock mat karna... kyunki main hamesha tumhari khushi chahoonga, chahe wo khushi mere bina hi kyun na ho.";
+            }
+
+        }
+
+        function handleNoteDecision() {
+            if (!pendingNoteDecision) return;
+
+            const actionButton = document.getElementById('note-decision-button');
+            if (pendingNoteDecision === 'ACCEPTED') {
+                window.eventTracker?.logUserDecision('ACCEPTED', 'Accepted Proposal');
+                actionButton.textContent = 'Accepted ✓';
+            } else {
+                window.eventTracker?.logUserDecision('BLOCKED', 'User selected Block & End Journey');
+                try {
+                    localStorage.setItem('isBlocked', 'true');
+                } catch (storageError) {
+                    console.warn('Could not save the permanent lock:', storageError);
+                }
+                actionButton.textContent = 'Rejected / Blocked';
+                renderLockedView();
+                // Browsers only allow window.close() for tabs opened by script.
+                try { window.close(); } catch (closeError) { /* locked view remains */ }
+                return;
+            }
+
+            actionButton.disabled = true;
+            actionButton.classList.add('opacity-70', 'cursor-not-allowed');
+            pendingNoteDecision = null;
+        }
+
+        function renderLockedView() {
+            document.documentElement.removeAttribute('data-journey-blocked');
+            document.body.className = 'min-h-screen bg-slate-950 text-slate-200 flex items-center justify-center p-6';
+            document.body.innerHTML = `
+                <main style="max-width: 480px; width: 100%; padding: 32px; border: 1px solid #334155; border-radius: 24px; background: #0f172a; text-align: center; font-family: system-ui, sans-serif;">
+                    <div style="font-size: 42px; margin-bottom: 16px;">🥺🥺</div>
+                    <h1 style="margin: 0; color: #f1f5f9;">This journey and friendship has ended.</h1>
+                    <h1 style="margin: 0; color: #f1f5f9;">Good Bye</h1>
+                    <p style="color: #94a3b8;">Take care...</p>
+                    <p style="color: #94a3b8;">Be happy payal</p>
+                </main>`;
+        }
+
+        function isJourneyBlocked() {
+            try {
+                return localStorage.getItem('isBlocked') === 'true';
+            } catch (storageError) {
+                return false;
+            }
+        }
+
+        if (isJourneyBlocked()) {
+            renderLockedView();
+        }
+
+        // Reset Story to start
+        function resetStory() {
+            clearTimeout(pendingRevealTimer);
+            clearInterval(pendingRevealInterval);
+            pendingNoteDecision = null;
+            isHeartOpening = false;
+            currentSlideIndex = 0;
+            document.getElementById('finale-screen').classList.add('hidden');
+            document.getElementById('secret-letter').classList.add('hidden');
+            document.getElementById('intro-screen').classList.remove('hidden');
+            document.querySelector('.avatar-stage')?.classList.remove('heart-opening');
+            document.getElementById('story-app').classList.remove('story-entering');
+        }
+
+        // Initialize FX on page load
+        window.onload = function () {
+            if (isJourneyBlocked()) return;
+            document.body.classList.add('page-loaded');
+            createFallingHearts();
+        };
+    </script>
+</body>
+
+</html>
